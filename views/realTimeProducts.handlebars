@@ -2,7 +2,7 @@
     <div class="row">
         {{#each showProducts}}
         <div class="col my-3">
-            <div class="card" style="width: 18rem;">
+            <div class="card" style="width: 18rem;" id={{this.id}}>
                 <img src={{this.thumbnails}} class="card-img-top" alt={{this.title}}>
                 <div class="card-body">
                     <h5 class="card-title">{{this.title}}</h5>
@@ -18,13 +18,10 @@
 </div>
 
 
+<script src="https://cdnjs.cloudfare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+<script src="http://localhost:8081/socket.io/socket.io.js"></script>
 
+<script>
+    const ws = io('ws://localhost:8081');
 
-
-
-
-
-
-
-
-
+</script>
