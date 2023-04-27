@@ -5,6 +5,7 @@ import routerCart from "./routes/carts.routes.js"
 import views from "./routes/views.routes.js"
 import { __dirname } from './utils.js'
 import { Server} from "socket.io" 
+import productManager from "./productManager.js"
 
 const server = express()
 server.use(express.json())
@@ -36,4 +37,25 @@ server.listen(puerto, () => {
     
 io.on("connection",(socket)=>{
     console.log(`nuevo cliente conectado ${socket.id}`)
+
+    socket.emit("confirmacion_Server","Conexion Aceptada")
+
+    socket.on("eventTest",(data)=>{
+        console.log(data)
+    })
+
+     socket.on("delProduct",async (data)=>{
+        console.log(`el PID a borrar es ${data}`)
+        await productManager.store.deleteProduct(parseInt(data))
+        socket.emit("deleteProduct",data)
+    })
+
+    socket.on("addProduct",async(data)=>{
+        console.log(`dato recibido ${data}`)
+        await productManager.store.addProduct(data.title,data.description,data.price,data.thumbnails,data.code,data.stock)
+        let ultimoProducto=await productManager.store.getProducts()
+        let prodAgregar=ultimoProducto[ultimoProducto.length-1]
+        console.log(prodAgregar)
+        socket.emit("addNewProd",prodAgregar)
+    })
 })

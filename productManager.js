@@ -37,10 +37,10 @@ class ProductManager {
         })
 
         if (title == undefined || description == undefined || price == undefined || thumbnails == undefined || code == undefined || stock == undefined) {
-            
+            console.log("Se deben completar todos los campos para agregar el producto")
             return "Se deben completar todos los campos para agregar el producto"
         } else if (codigoRepetido == true) {
-            
+            console.log("El codigo ingresado ya existe, por favor seleccione otro")
             return "El codigo ingresado ya existe, por favor seleccione otro"
         }
         else {
@@ -59,6 +59,7 @@ class ProductManager {
             arrayActualizado.push(newProd)
             
             await this.writeToFile(arrayActualizado)
+            console.log("Articulo agregado satisfactoriamente")
             return "Articulo agregado satisfactoriamente"
         }
         
@@ -118,12 +119,12 @@ class ProductManager {
             return e.id === id
         })
         if (indexElemento === -1) {
-            
+            console.log(`El producto con este id no existe ${typeof(id)}`)
             return "El producto con este id no existe"
         } else {
             arregloActualizado.splice(indexElemento,1)
             await this.writeToFile(arregloActualizado)
-            
+            console.log(`Se ha eliminado el producto con el id ${id}`)
             return `Se ha eliminado el producto con el id ${id}`
         }
     }

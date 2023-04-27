@@ -1,20 +1,41 @@
 <div class="container my-5">
-    <div class="row">
+    <div class="row" id="rowContainer">
+        <div class="col-2 mx-4 h-100">
+            <h3>Agregar Producto</h3>
+            <p style="font-size: 0.7rem;">
+                Titulo: <input type="text" id="npTitulo">
+                Descripcion: <input type="text" id="npDescripcion">
+                Precio: <input type="text" id="npPrecio">
+                Imagen: <input type="text" id="npImagen">
+                Codigo: <input type="text" id="npCodigo">
+                Stock: <input type="text" id="npStock">
+                Estado: <input type="text" id="npEstado">
+                <button id="aggProductoBtn">Agregar</button>
+            </p>
+
+
+            <h3 class="my-3">Eliminar Producto</h3>
+            <p style="font-size: 0.7rem;">
+                Seleccione el ID del producto: <input type="text" id="pid">
+                <button id="delBtn">borrar</button>
+            </p>
+        </div>
         {{#each showProducts}}
-        <div class="col my-3">
-            <div class="card" style="width: 18rem;" id={{this.id}}>
+        <div class="col my-3 " id="id{{this.id}}">
+            <div class="card" style="width: 18rem;">
                 <img src={{this.thumbnails}} class="card-img-top" alt={{this.title}}>
                 <div class="card-body">
                     <h5 class="card-title">{{this.title}}</h5>
                     <p class="card-text">{{this.description}}</p>
                     <p class="my-4">Precio x Und: <b>{{this.price}}</b></p>
-                    
+                    <p>ID: <b>{{this.id}}</b></p>
+
                 </div>
             </div>
         </div>
         {{/each}}
     </div>
-    
+
 </div>
 
 
@@ -23,5 +44,116 @@
 
 <script>
     const ws = io('ws://localhost:8081');
+    let btnDel = document.getElementById("delBtn")
+    let btnAdd = document.getElementById("aggProductoBtn")
 
+    ws.on("connect", () => {
+        ws.emit("eventTest", "Evento de conexion prueba")
+
+        ws.on("confirmacion_Server", (msg) => {
+            console.log(msg)
+        })
+
+        btnDel.addEventListener("click", () => {
+            let userID = document.getElementById("pid").value
+            ws.emit("delProduct", userID)
+        })
+        btnAdd.addEventListener("click", () => {
+            let titulo = document.getElementById("npTitulo").value
+            let desc = document.getElementById("npDescripcion").value
+            let precio = document.getElementById("npPrecio").value
+            let imagen = document.getElementById("npImagen").value
+            let codigo = document.getElementById("npCodigo").value
+            let stock = document.getElementById("npStock").value
+            let estado = document.getElementById("npEstado").value
+            const prod = {
+                title: titulo,
+                description: desc,
+                price: precio,
+                thumbnails: [imagen],
+                code: codigo,
+                stock: stock,
+                status: estado
+            }
+            const valores = [...Object.values(prod)]
+            const empty = (e) => e == ""
+            if (valores.some(empty)) {
+                alert("se deben completar todos los campos para agregar algun producto")
+            } else {
+                ws.emit("addProduct", prod)
+            }
+
+        })
+        ws.on("deleteProduct", (msg) => {
+            deleteProduct(msg)
+        })
+        ws.on("addNewProd",(msg)=>{
+            addProduct(msg)
+        })
+
+    })
+
+
+    deleteProduct = (pid) => {
+        let id = pid
+        let cardP = document.getElementById(`id${id}`)
+        cardP.parentNode.removeChild(cardP)
+
+    }
+    
+
+
+    addProduct = (newProduct) => {
+        console.log("me ejecute")
+        const rowContainer = document.getElementById("rowContainer")
+
+        const col = document.createElement("div")
+        col.id = newProduct.id
+        col.className = "col my-3 "
+        const card = document.createElement("div")
+        card.className = "card"
+        card.style = "width: 18rem;"
+
+        const img = document.createElement("img")
+        img.src = newProduct.thumbnails
+        img.alt = newProduct.title
+        img.className = "card-img-top"
+
+        const cardBody = document.createElement("div")
+        cardBody.className = "card-body"
+
+        const h5 = document.createElement("h5")
+        h5.className = "card-title"
+        h5.textContent = newProduct.title
+
+        const cardText = document.createElement("p")
+        cardText.className = "card-text"
+        cardText.textContent = newProduct.description
+
+        const cardPrice = document.createElement("p")
+        cardPrice.className = "my-4"
+        cardPrice.textContent = "Precio x Und: "
+
+        const bprecio = document.createElement("b")
+        bprecio.textContent = newProduct.price
+
+        const pid = document.createElement("p")
+        pid.textContent = `ID: ${newProduct.id}`
+
+        card.appendChild(img)
+
+        cardBody.appendChild(h5)
+        cardBody.appendChild(cardText)
+        cardPrice.appendChild(bprecio)
+        cardBody.appendChild(cardPrice)
+
+
+        card.appendChild(cardBody)
+
+        col.appendChild(card)
+        cardBody.appendChild(pid)
+        rowContainer.appendChild(col)
+
+    }
+    
 </script>
